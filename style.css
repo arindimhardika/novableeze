@@ -1,0 +1,640 @@
+/* ==========================================================
+   Nova Blaster: Quiz Edition - style.css
+   ========================================================== */
+
+:root {
+  --space-deep: #0b1030;
+  --space-mid: #151c4a;
+  --space-line: #2b3578;
+  --text: #eef1ff;
+  --text-dim: #aab3e6;
+  --player: #5cf2d6;
+  --accent: #ffb547;
+  --good: #52e08a;
+  --bad: #ff5d73;
+  --overlay: rgba(8, 11, 36, 0.88);
+  --radius: 14px;
+  --font-body: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+  --font-display: "Arial Black", "Segoe UI Black", Impact, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--space-deep);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Kontainer game & canvas ---------- */
+
+.game {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 10%, var(--space-mid) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, #1b1456 0%, transparent 50%),
+    var(--space-deep);
+}
+
+#arena {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.game.shake {
+  animation: shake 0.28s linear;
+}
+
+@keyframes shake {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-7px, 4px); }
+  40%  { transform: translate(6px, -5px); }
+  60%  { transform: translate(-5px, -3px); }
+  80%  { transform: translate(4px, 5px); }
+  100% { transform: translate(0, 0); }
+}
+
+.game.flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 93, 115, 0.25);
+  pointer-events: none;
+  animation: flash 0.35s ease-out forwards;
+}
+
+@keyframes flash {
+  to { opacity: 0; }
+}
+
+/* ---------- HUD ---------- */
+
+.hud {
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px 8px;
+  pointer-events: none;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 64px;
+}
+
+.hud-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.hud-value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+#hud-lives {
+  color: var(--bad);
+}
+
+#hud-combo {
+  color: var(--accent);
+}
+
+/* ---------- Bar progres stage ---------- */
+
+.stage-progress {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 66px);
+  left: 16px;
+  right: 16px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stage-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--player);
+  transition: width 0.25s ease-out;
+}
+
+/* ---------- Power-up aktif ---------- */
+
+.powerup-bar {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 84px);
+  left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.powerup-bar li {
+  padding: 4px 10px;
+  border: 1px solid var(--player);
+  border-radius: 999px;
+  background: rgba(92, 242, 214, 0.12);
+  color: var(--player);
+  font-size: 0.8rem;
+}
+
+/* ---------- Banner stage ---------- */
+
+.stage-banner {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  animation: banner 1.8s ease-out forwards;
+}
+
+.stage-banner p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 4rem);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-shadow: 0 4px 24px rgba(255, 181, 71, 0.45);
+}
+
+@keyframes banner {
+  0%   { opacity: 0; transform: scale(0.8); }
+  15%  { opacity: 1; transform: scale(1); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+/* ---------- Toolbar (jeda & suara) ---------- */
+
+.toolbar {
+  position: absolute;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--space-line);
+  border-radius: 999px;
+  background: rgba(21, 28, 74, 0.8);
+  font-size: 0.85rem;
+}
+
+.icon-btn:hover {
+  border-color: var(--player);
+}
+
+/* ---------- Kontrol sentuh ---------- */
+
+.touch-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.touch-btn {
+  pointer-events: auto;
+  width: 72px;
+  height: 72px;
+  border: 2px solid var(--space-line);
+  border-radius: 50%;
+  background: rgba(21, 28, 74, 0.7);
+  font-size: 1.4rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-btn:active {
+  background: rgba(92, 242, 214, 0.25);
+  border-color: var(--player);
+}
+
+.touch-fire {
+  width: auto;
+  flex: 1;
+  max-width: 180px;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .touch-controls {
+    display: none !important;
+  }
+}
+
+/* ---------- Layar overlay (menu, kuis, dll.) ---------- */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 24px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  background: var(--overlay);
+  text-align: center;
+  overflow-y: auto;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 11vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--player);
+  text-shadow: 0 6px 32px rgba(92, 242, 214, 0.35);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.screen-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.lead {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.highscore {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+}
+
+.highscore span {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ---------- Tombol ---------- */
+
+.menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn {
+  min-width: 160px;
+  padding: 14px 24px;
+  border: 2px solid var(--space-line);
+  border-radius: var(--radius);
+  background: var(--space-mid);
+  font-weight: 700;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.btn:hover {
+  border-color: var(--player);
+}
+
+.btn:active {
+  transform: translateY(2px);
+}
+
+.btn-primary {
+  border-color: var(--player);
+  background: var(--player);
+  color: var(--space-deep);
+}
+
+.btn-primary:hover {
+  background: #86f7e2;
+}
+
+/* ---------- Cara bermain ---------- */
+
+.howto-list {
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+}
+
+.howto-list li {
+  padding: 12px 16px;
+  border-left: 4px solid var(--player);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: rgba(21, 28, 74, 0.75);
+}
+
+/* ---------- Quiz Gate ---------- */
+
+#screen-quiz {
+  gap: 14px;
+}
+
+.quiz-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: min(100%, 40rem);
+}
+
+.quiz-meta {
+  margin: 0;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.quiz-timer {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.timer-track {
+  width: min(100%, 40rem);
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.timer-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--player);
+  transition: width 1s linear, background 0.3s ease;
+}
+
+.timer-fill.warning {
+  background: var(--accent);
+}
+
+.timer-fill.danger {
+  background: var(--bad);
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 1; }
+  to   { opacity: 0.55; }
+}
+
+.quiz-question {
+  width: min(100%, 40rem);
+  margin: 8px 0 4px;
+  font-size: clamp(1.25rem, 4.5vw, 1.8rem);
+  line-height: 1.3;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: min(100%, 40rem);
+}
+
+.option {
+  min-height: 64px;
+  padding: 12px 16px;
+  border: 2px solid var(--space-line);
+  border-radius: var(--radius);
+  background: var(--space-mid);
+  font-weight: 700;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--player);
+  transform: translateY(-2px);
+}
+
+.option:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.option.correct {
+  border-color: var(--good);
+  background: rgba(82, 224, 138, 0.22);
+  opacity: 1;
+}
+
+.option.wrong {
+  border-color: var(--bad);
+  background: rgba(255, 93, 115, 0.22);
+  opacity: 1;
+}
+
+.quiz-feedback {
+  min-height: 1.5em;
+  margin: 0;
+  font-weight: 700;
+}
+
+.quiz-feedback.good {
+  color: var(--good);
+}
+
+.quiz-feedback.bad {
+  color: var(--bad);
+}
+
+/* ---------- Pilihan power-up ---------- */
+
+.powerup-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: min(100%, 38rem);
+}
+
+.powerup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 2px solid var(--space-line);
+  border-radius: var(--radius);
+  background: var(--space-mid);
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.powerup:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.powerup.upgraded {
+  border-color: var(--accent);
+  background: rgba(255, 181, 71, 0.14);
+}
+
+.powerup-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.powerup-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* ---------- Hasil game over ---------- */
+
+.result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: min(100%, 28rem);
+  margin: 0;
+}
+
+.result div {
+  padding: 14px;
+  border-radius: var(--radius);
+  background: rgba(21, 28, 74, 0.8);
+}
+
+.result dt {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.result dd {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.newrecord {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--accent);
+  animation: pulse 0.7s ease-in-out infinite alternate;
+}
+
+/* ---------- Responsif ---------- */
+
+@media (max-width: 520px) {
+  .hud {
+    padding: 10px 12px 6px;
+  }
+
+  .hud-value {
+    font-size: 1.15rem;
+  }
+
+  .quiz-options,
+  .powerup-choices {
+    grid-template-columns: 1fr;
+  }
+
+  .btn {
+    min-width: 140px;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .screen {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .title {
+    font-size: 2.4rem;
+  }
+}
+
+/* ---------- Kurangi gerakan ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
