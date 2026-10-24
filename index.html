@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nova Blaster: Quiz Edition</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main id="game" class="game">
+
+    <!-- Arena tembak -->
+    <canvas id="arena" aria-label="Arena permainan"></canvas>
+
+    <!-- HUD saat bermain -->
+    <header id="hud" class="hud hidden">
+      <div class="hud-item">
+        <span class="hud-label">Skor</span>
+        <span id="hud-score" class="hud-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Stage</span>
+        <span id="hud-stage" class="hud-value">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Nyawa</span>
+        <span id="hud-lives" class="hud-value" aria-live="polite">3</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Combo</span>
+        <span id="hud-combo" class="hud-value">x1</span>
+      </div>
+    </header>
+
+    <!-- Status power-up aktif -->
+    <ul id="powerup-bar" class="powerup-bar hidden" aria-label="Power-up aktif"></ul>
+
+    <!-- Bar progres stage -->
+    <div id="stage-progress" class="stage-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div id="stage-progress-fill" class="stage-progress-fill"></div>
+    </div>
+
+    <!-- Pengumuman stage -->
+    <div id="stage-banner" class="stage-banner hidden" aria-live="assertive">
+      <p id="stage-banner-text">Stage 1</p>
+    </div>
+
+    <!-- Kontrol sentuh (mobile) -->
+    <div id="touch-controls" class="touch-controls hidden">
+      <button id="btn-left" class="touch-btn" aria-label="Gerak ke kiri">&#9664;</button>
+      <button id="btn-fire" class="touch-btn touch-fire" aria-label="Tembak">Tembak</button>
+      <button id="btn-right" class="touch-btn" aria-label="Gerak ke kanan">&#9654;</button>
+    </div>
+
+    <!-- Menu utama -->
+    <section id="screen-menu" class="screen">
+      <h1 class="title">Nova Blaster</h1>
+      <p class="subtitle">Quiz Edition</p>
+      <p class="lead">Tembak semua musuh, kalahkan boss, lalu jawab satu soal dalam 15 detik untuk lanjut ke stage berikutnya.</p>
+      <div class="menu-actions">
+        <button id="btn-start" class="btn btn-primary">Mulai main</button>
+        <button id="btn-howto" class="btn">Cara bermain</button>
+      </div>
+      <p class="highscore">Skor tertinggi: <span id="menu-highscore">0</span></p>
+    </section>
+
+    <!-- Cara bermain -->
+    <section id="screen-howto" class="screen hidden">
+      <h2 class="screen-title">Cara bermain</h2>
+      <ul class="howto-list">
+        <li><strong>Gerak:</strong> tombol panah kiri dan kanan, atau geser jari di layar.</li>
+        <li><strong>Tembak:</strong> tekan spasi, atau tahan tombol Tembak.</li>
+        <li><strong>Boss kalah:</strong> Quiz Gate terbuka. Pilih satu jawaban sebelum 15 detik habis.</li>
+        <li><strong>Jawaban benar:</strong> kamu memilih satu power-up dan mendapat bonus skor.</li>
+        <li><strong>Jawaban salah atau waktu habis:</strong> tidak ada power-up, dan nyawa berkurang satu.</li>
+        <li><strong>Streak:</strong> tiga jawaban benar beruntun meng-upgrade power-up kamu.</li>
+      </ul>
+      <button id="btn-howto-back" class="btn btn-primary">Kembali</button>
+    </section>
+
+    <!-- Quiz Gate -->
+    <section id="screen-quiz" class="screen hidden" aria-labelledby="quiz-question">
+      <div class="quiz-head">
+        <p class="quiz-meta">Quiz Gate &ndash; Stage <span id="quiz-stage">1</span></p>
+        <p class="quiz-timer" aria-live="off"><span id="quiz-time">15</span> detik</p>
+      </div>
+      <div class="timer-track" aria-hidden="true">
+        <div id="timer-fill" class="timer-fill"></div>
+      </div>
+      <h2 id="quiz-question" class="quiz-question">Pertanyaan muncul di sini.</h2>
+      <div id="quiz-options" class="quiz-options" role="group" aria-label="Pilihan jawaban">
+        <button class="option" data-index="0"></button>
+        <button class="option" data-index="1"></button>
+        <button class="option" data-index="2"></button>
+        <button class="option" data-index="3"></button>
+      </div>
+      <p id="quiz-feedback" class="quiz-feedback" aria-live="assertive"></p>
+    </section>
+
+    <!-- Pilih power-up -->
+    <section id="screen-powerup" class="screen hidden">
+      <h2 class="screen-title">Jawaban benar! Pilih power-up</h2>
+      <p id="powerup-streak" class="lead">Streak jawaban benar: 0</p>
+      <div id="powerup-choices" class="powerup-choices">
+        <button class="powerup" data-type="shield">
+          <span class="powerup-name">Perisai</span>
+          <span class="powerup-desc">Kebal terhadap 3 tembakan.</span>
+        </button>
+        <button class="powerup" data-type="triple">
+          <span class="powerup-name">Triple Shot</span>
+          <span class="powerup-desc">Tembakan 3 arah selama 10 detik.</span>
+        </button>
+        <button class="powerup" data-type="nova">
+          <span class="powerup-name">Bom Nova</span>
+          <span class="powerup-desc">Hancurkan semua musuh di layar.</span>
+        </button>
+        <button class="powerup" data-type="slow">
+          <span class="powerup-name">Slow Motion</span>
+          <span class="powerup-desc">Musuh melambat beberapa detik.</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Jeda -->
+    <section id="screen-pause" class="screen hidden">
+      <h2 class="screen-title">Permainan dijeda</h2>
+      <div class="menu-actions">
+        <button id="btn-resume" class="btn btn-primary">Lanjutkan</button>
+        <button id="btn-quit" class="btn">Keluar ke menu</button>
+      </div>
+    </section>
+
+    <!-- Game over -->
+    <section id="screen-gameover" class="screen hidden">
+      <h2 class="screen-title">Game over</h2>
+      <dl class="result">
+        <div><dt>Skor akhir</dt><dd id="result-score">0</dd></div>
+        <div><dt>Stage dicapai</dt><dd id="result-stage">1</dd></div>
+        <div><dt>Jawaban benar</dt><dd id="result-correct">0</dd></div>
+        <div><dt>Skor tertinggi</dt><dd id="result-highscore">0</dd></div>
+      </dl>
+      <p id="result-newrecord" class="newrecord hidden">Rekor baru!</p>
+      <div class="menu-actions">
+        <button id="btn-retry" class="btn btn-primary">Main lagi</button>
+        <button id="btn-menu" class="btn">Menu utama</button>
+      </div>
+    </section>
+
+    <!-- Tombol jeda & suara -->
+    <div id="toolbar" class="toolbar hidden">
+      <button id="btn-pause" class="icon-btn" aria-label="Jeda">Jeda</button>
+      <button id="btn-sound" class="icon-btn" aria-label="Nyalakan atau matikan suara" aria-pressed="true">Suara: nyala</button>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
